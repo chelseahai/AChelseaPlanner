@@ -102,24 +102,10 @@
             }
         }
 
-        // Update clock every second
-        updateClock();
-        updateCalendar();
-        updateCountdown();
-        loadTheme(); // Load saved theme preference
-        loadTasks(); // Load tasks from localStorage
-        setInterval(updateClock, 1000);
-        
-        // Update calendar and countdown every minute (in case date changes)
-        setInterval(updateCalendar, 60000);
-        setInterval(updateCountdown, 60000);
-        
-        // Check for daily reset every minute
-        // setInterval(checkDailyReset, 60000); // Commented out - function not defined
-        
-        // Check for 23:59 auto-save every minute
-        // setInterval(checkAutoSave, 60000); // Commented out - function not defined
-        
+        // Task Management Variables
+        let tasks = [];
+        let taskLogs = [];
+
         // Manual theme toggle
         function toggleTheme() {
             document.body.classList.toggle('dark-mode');
@@ -135,10 +121,6 @@
                 document.body.classList.add('dark-mode');
             }
         }
-
-        // Task Management Functions
-        let tasks = [];
-        let taskLogs = [];
 
         // Load tasks from localStorage
         function loadTasks() {
@@ -321,6 +303,25 @@
                 addTask();
             }
         });
+
+        // Initialize everything after all functions are defined
+        updateClock();
+        updateCalendar();
+        updateCountdown();
+        loadTheme(); // Load saved theme preference
+        loadTasks(); // Load tasks from localStorage
+        setInterval(updateClock, 1000);
+        
+        // Update calendar and countdown every minute (in case date changes)
+        setInterval(updateCalendar, 60000);
+        setInterval(updateCountdown, 60000);
+        
+        // Initialize last reset date and timers
+        if (!localStorage.getItem('lastResetDate')) {
+            localStorage.setItem('lastResetDate', new Date().toDateString());
+        }
+        setInterval(checkAutoSave, 60000);
+        setInterval(checkDailyReset, 60000);
 
     </script>
 </body>
