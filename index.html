@@ -107,7 +107,7 @@
         updateCalendar();
         updateCountdown();
         loadTheme(); // Load saved theme preference
-        loadTasks(); // Load tasks from server
+        loadTasks(); // Load tasks from localStorage
         setInterval(updateClock, 1000);
         
         // Update calendar and countdown every minute (in case date changes)
@@ -140,31 +140,38 @@
         let tasks = [];
         let taskLogs = [];
 
-        // API Base URL
-        const API_BASE = 'http://localhost:3000/api';
-
-        // Load tasks from server
-        async function loadTasks() {
+        // Load tasks from localStorage
+        function loadTasks() {
             try {
-                const response = await fetch(`${API_BASE}/tasks`);
-                tasks = await response.json();
+                const stored = localStorage.getItem('tasks');
+                tasks = stored ? JSON.parse(stored) : [];
                 renderTasks();
             } catch (error) {
                 console.error('Error loading tasks:', error);
+                tasks = [];
             }
         }
 
-        // Load logs from server
-        async function loadLogs() {
+        // Load logs from localStorage
+        function loadLogs() {
             try {
-                const response = await fetch(`${API_BASE}/logs`);
-                taskLogs = await response.json();
+                const stored = localStorage.getItem('taskLogs');
+                taskLogs = stored ? JSON.parse(stored) : [];
             } catch (error) {
                 console.error('Error loading logs:', error);
+                taskLogs = [];
             }
         }
 
-        async function addTask() {
+        function persistTasks() {
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+
+        function persistLogs() {
+            localStorage.setItem('taskLogs', JSON.stringify(taskLogs));
+        }
+
+        function addTask() {
             const taskInput = document.getElementById('taskInput');
             const taskText = taskInput.value.trim();
             
@@ -173,49 +180,24 @@
                 return;
             }
             
-            try {
-                const response = await fetch(`${API_BASE}/tasks`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ text: taskText })
-                });
-                
-                if (response.ok) {
-                    taskInput.value = '';
-                    loadTasks(); // Reload tasks from server
-                } else {
-                    alert('Error adding task');
-                }
-            } catch (error) {
-                console.error('Error adding task:', error);
-                alert('Error adding task');
-            }
+            const task = {
+                id: Date.now(),
+                text: taskText,
+                completed: false,
+                createdAt: new Date().toISOString()
+            };
+            tasks.push(task);
+            persistTasks();
+            taskInput.value = '';
+            renderTasks();
         }
 
-        async function toggleTask(id) {
+        function toggleTask(id) {
             const task = tasks.find(t => t.id === id);
-            if (task) {
-                try {
-                    const response = await fetch(`${API_BASE}/tasks/${id}`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ completed: !task.completed })
-                    });
-                    
-                    if (response.ok) {
-                        loadTasks(); // Reload tasks from server
-                    } else {
-                        alert('Error updating task');
-                    }
-                } catch (error) {
-                    console.error('Error updating task:', error);
-                    alert('Error updating task');
-                }
-            }
+            if (!task) return;
+            task.completed = !task.completed;
+            persistTasks();
+            renderTasks();
         }
 
         function deleteTask(id) {
@@ -223,24 +205,7 @@
             renderTasks();
         }
 
-        function checkDayNightMode() {
-            const now = new Date();
-            const hours = now.getHours();
-            const minutes = now.getMinutes();
-            const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-            
-            // Debug: Log current time (remove in production)
-            console.log(`Current time: ${timeString}, Hours: ${hours}`);
-            
-            // Dark mode from 7pm (19:00) to 7am (07:00)
-            if (hours >= 19 || hours < 7) {
-                document.body.classList.add('dark-mode');
-                console.log('Dark mode activated');
-            } else {
-                document.body.classList.remove('dark-mode');
-                console.log('Light mode activated');
-            }
-        }
+        // Optional: time-based theme is disabled for offline mode
 
         function saveTasksToLog() {
             if (tasks.length > 0) {
@@ -259,9 +224,9 @@
             }
         }
 
-        async function showLogPage() {
+        function showLogPage() {
             document.getElementById('logPage').style.display = 'block';
-            await loadLogs();
+            loadLogs();
             renderLogs();
         }
 
@@ -278,12 +243,12 @@
             }
             
             logContent.innerHTML = taskLogs.map(log => {
-                const tasks = JSON.parse(log.tasks_data);
+                const tasksList = log.tasks || [];
                 return `
                     <div class="log-entry">
                         <div class="log-date">${log.date}</div>
                         <div class="log-tasks">
-                            ${tasks.map(task => 
+                            ${tasksList.map(task => 
                                 `<div style="margin: 5px 0; ${task.completed ? 'text-decoration: line-through; opacity: 0.6;' : ''}">
                                     ${task.completed ? '✓' : '○'} ${task.text}
                                 </div>`
@@ -295,13 +260,9 @@
         }
 
         function renderTasks() {
-            console.log('renderTasks called, tasks count:', tasks.length);
             const tasksList = document.getElementById('tasksList');
             
-            if (!tasksList) {
-                console.error('tasksList element not found');
-                return;
-            }
+            if (!tasksList) return;
             
             if (tasks.length === 0) {
                 tasksList.innerHTML = '<div class="no-tasks">...</div>';
@@ -317,6 +278,42 @@
                 </div>
             `).join('');
         }
+
+        // Daily save at 23:59 and reset at 00:00 (offline)
+        function checkAutoSave() {
+            const now = new Date();
+            if (now.getHours() === 23 && now.getMinutes() === 59) {
+                // Save current tasks to logs
+                if (tasks.length > 0) {
+                    const logEntry = {
+                        date: new Date().toDateString(),
+                        timestamp: new Date().toISOString(),
+                        tasks: tasks.map(t => ({ text: t.text, completed: t.completed, createdAt: t.createdAt }))
+                    };
+                    taskLogs.unshift(logEntry);
+                    persistLogs();
+                }
+            }
+        }
+
+        function checkDailyReset() {
+            const savedDate = localStorage.getItem('lastResetDate');
+            const today = new Date().toDateString();
+            if (savedDate !== today) {
+                // New day: clear tasks and update marker
+                tasks = [];
+                persistTasks();
+                localStorage.setItem('lastResetDate', today);
+                renderTasks();
+            }
+        }
+
+        // Initialize last reset date and timers
+        if (!localStorage.getItem('lastResetDate')) {
+            localStorage.setItem('lastResetDate', new Date().toDateString());
+        }
+        setInterval(checkAutoSave, 60000);
+        setInterval(checkDailyReset, 60000);
 
         // Allow adding tasks with Enter key
         document.getElementById('taskInput').addEventListener('keypress', function(e) {
