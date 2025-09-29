@@ -209,16 +209,15 @@ body.dark-mode .tasks-container {
     align-items: center;
     justify-content: space-between;
     padding: 15px 0;
-    border-bottom: 1px solid #2c3e50;
+    margin-bottom: 15px;
     font-size: 1rem;
     font-weight: 300;
     color: #2c3e50;
-    transition: color 0.5s ease, border-color 0.5s ease;
+    transition: color 0.5s ease;
 }
 
 body.dark-mode .task-item {
     color: #e0e0e0;
-    border-bottom-color: #e0e0e0;
 }
 
 .task-item:last-child {
@@ -231,28 +230,19 @@ body.dark-mode .task-item {
 
 .task-actions {
     display: flex;
+    align-items: center;
     gap: 10px;
 }
 
-.task-btn {
-    padding: 8px 15px;
-    border: 2px solid #2c3e50;
-    font-family: 'Poppins', sans-serif;
-    font-size: 0.9rem;
-    font-weight: 300;
+.task-checkbox {
+    width: 20px;
+    height: 20px;
     cursor: pointer;
+    accent-color: #2c3e50;
 }
 
-.complete-btn {
-    background: #6c757d;
-    color: white;
-    border-color: #6c757d;
-}
-
-.delete-btn {
-    background: #495057;
-    color: white;
-    border-color: #495057;
+body.dark-mode .task-checkbox {
+    accent-color: #e0e0e0;
 }
 
 .task-completed {
@@ -277,6 +267,34 @@ body.dark-mode .task-item {
     color: #6c757d;
     font-style: italic;
     padding: 40px 0;
+}
+
+.theme-button {
+    position: fixed;
+    top: 20px;
+    right: 100px;
+    padding: 10px 20px;
+    background: transparent;
+    color: #2c3e50;
+    border: none;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 300;
+    cursor: pointer;
+    z-index: 1000;
+    transition: color 0.5s ease;
+}
+
+.theme-button:hover {
+    color: #666;
+}
+
+body.dark-mode .theme-button {
+    color: #e0e0e0;
+}
+
+body.dark-mode .theme-button:hover {
+    color: #ccc;
 }
 
 .log-button {
@@ -366,4 +384,16 @@ body.dark-mode .close-log {
     background: #e0e0e0;
     color: #2c3e50;
     border-color: #e0e0e0;
+}
+
+.kawaii-text {
+    text-align: center;
+    color: #6c757d;
+    font-size: 1.2rem;
+    margin-top: 20px;
+    transition: color 0.5s ease;
+}
+
+body.dark-mode .kawaii-text {
+    color: #a0a0a0;
 }

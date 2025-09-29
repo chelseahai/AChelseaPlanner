@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <button class="theme-button" onclick="toggleTheme()">☀</button>
     <button class="log-button" onclick="showLogPage()">Log</button>
     
     <div class="log-page" id="logPage">
@@ -51,6 +52,8 @@
                     <div class="no-tasks">...</div>
                 </div>
             </div>
+            
+            <div class="kawaii-text">(ꈍ ᴗ ꈍ✿)</div>
         </div>
     </div>
 
@@ -103,7 +106,8 @@
         updateClock();
         updateCalendar();
         updateCountdown();
-        checkDayNightMode(); // Initial check
+        loadTheme(); // Load saved theme preference
+        loadTasks(); // Load tasks from server
         setInterval(updateClock, 1000);
         
         // Update calendar and countdown every minute (in case date changes)
@@ -111,20 +115,56 @@
         setInterval(updateCountdown, 60000);
         
         // Check for daily reset every minute
-        setInterval(checkDailyReset, 60000);
+        // setInterval(checkDailyReset, 60000); // Commented out - function not defined
         
         // Check for 23:59 auto-save every minute
-        setInterval(checkAutoSave, 60000);
+        // setInterval(checkAutoSave, 60000); // Commented out - function not defined
         
-        // Check for day/night mode every minute
-        setInterval(checkDayNightMode, 60000);
+        // Manual theme toggle
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            // Save preference to localStorage
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDarkMode);
+        }
+        
+        // Load saved theme preference
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('darkMode');
+            if (savedTheme === 'true') {
+                document.body.classList.add('dark-mode');
+            }
+        }
 
         // Task Management Functions
         let tasks = [];
-        let lastResetDate = new Date().toDateString();
-        let taskLogs = JSON.parse(localStorage.getItem('taskLogs')) || [];
+        let taskLogs = [];
 
-        function addTask() {
+        // API Base URL
+        const API_BASE = 'http://localhost:3000/api';
+
+        // Load tasks from server
+        async function loadTasks() {
+            try {
+                const response = await fetch(`${API_BASE}/tasks`);
+                tasks = await response.json();
+                renderTasks();
+            } catch (error) {
+                console.error('Error loading tasks:', error);
+            }
+        }
+
+        // Load logs from server
+        async function loadLogs() {
+            try {
+                const response = await fetch(`${API_BASE}/logs`);
+                taskLogs = await response.json();
+            } catch (error) {
+                console.error('Error loading logs:', error);
+            }
+        }
+
+        async function addTask() {
             const taskInput = document.getElementById('taskInput');
             const taskText = taskInput.value.trim();
             
@@ -133,23 +173,48 @@
                 return;
             }
             
-            const task = {
-                id: Date.now(),
-                text: taskText,
-                completed: false,
-                createdAt: new Date()
-            };
-            
-            tasks.push(task);
-            taskInput.value = '';
-            renderTasks();
+            try {
+                const response = await fetch(`${API_BASE}/tasks`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ text: taskText })
+                });
+                
+                if (response.ok) {
+                    taskInput.value = '';
+                    loadTasks(); // Reload tasks from server
+                } else {
+                    alert('Error adding task');
+                }
+            } catch (error) {
+                console.error('Error adding task:', error);
+                alert('Error adding task');
+            }
         }
 
-        function toggleTask(id) {
+        async function toggleTask(id) {
             const task = tasks.find(t => t.id === id);
             if (task) {
-                task.completed = !task.completed;
-                renderTasks();
+                try {
+                    const response = await fetch(`${API_BASE}/tasks/${id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ completed: !task.completed })
+                    });
+                    
+                    if (response.ok) {
+                        loadTasks(); // Reload tasks from server
+                    } else {
+                        alert('Error updating task');
+                    }
+                } catch (error) {
+                    console.error('Error updating task:', error);
+                    alert('Error updating task');
+                }
             }
         }
 
@@ -161,12 +226,19 @@
         function checkDayNightMode() {
             const now = new Date();
             const hours = now.getHours();
+            const minutes = now.getMinutes();
+            const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+            
+            // Debug: Log current time (remove in production)
+            console.log(`Current time: ${timeString}, Hours: ${hours}`);
             
             // Dark mode from 7pm (19:00) to 7am (07:00)
             if (hours >= 19 || hours < 7) {
                 document.body.classList.add('dark-mode');
+                console.log('Dark mode activated');
             } else {
                 document.body.classList.remove('dark-mode');
+                console.log('Light mode activated');
             }
         }
 
@@ -187,8 +259,9 @@
             }
         }
 
-        function showLogPage() {
+        async function showLogPage() {
             document.getElementById('logPage').style.display = 'block';
+            await loadLogs();
             renderLogs();
         }
 
@@ -204,35 +277,42 @@
                 return;
             }
             
-            logContent.innerHTML = taskLogs.map(log => `
-                <div class="log-entry">
-                    <div class="log-date">${log.date}</div>
-                    <div class="log-tasks">
-                        ${log.tasks.map(task => 
-                            `<div style="margin: 5px 0; ${task.completed ? 'text-decoration: line-through; opacity: 0.6;' : ''}">
-                                ${task.completed ? '✓' : '○'} ${task.text}
-                            </div>`
-                        ).join('')}
+            logContent.innerHTML = taskLogs.map(log => {
+                const tasks = JSON.parse(log.tasks_data);
+                return `
+                    <div class="log-entry">
+                        <div class="log-date">${log.date}</div>
+                        <div class="log-tasks">
+                            ${tasks.map(task => 
+                                `<div style="margin: 5px 0; ${task.completed ? 'text-decoration: line-through; opacity: 0.6;' : ''}">
+                                    ${task.completed ? '✓' : '○'} ${task.text}
+                                </div>`
+                            ).join('')}
+                        </div>
                     </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         function renderTasks() {
+            console.log('renderTasks called, tasks count:', tasks.length);
             const tasksList = document.getElementById('tasksList');
+            
+            if (!tasksList) {
+                console.error('tasksList element not found');
+                return;
+            }
             
             if (tasks.length === 0) {
                 tasksList.innerHTML = '<div class="no-tasks">...</div>';
                 return;
             }
             
-            tasksList.innerHTML = tasks.map(task => `
+            tasksList.innerHTML = tasks.map((task, index) => `
                 <div class="task-item ${task.completed ? 'task-completed' : ''}">
-                    <div class="task-text">${task.text}</div>
+                    <div class="task-text">${index + 1}. ${task.text}</div>
                     <div class="task-actions">
-                        <button class="task-btn complete-btn" onclick="toggleTask(${task.id})">
-                            ${task.completed ? 'Undo' : 'Complete'}
-                        </button>
+                        <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTask(${task.id})">
                     </div>
                 </div>
             `).join('');
