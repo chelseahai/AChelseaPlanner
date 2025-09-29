@@ -23,30 +23,45 @@
 
         .sidebar {
             width: 50%;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            background: linear-gradient(45deg, #f8f9fa 0%, #e9ecef 25%, #dee2e6 50%, #e9ecef 75%, #f8f9fa 100%);
+            background-size: 400% 400%;
             color: #2c3e50;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             position: relative;
-            border-right: 1px solid rgba(0, 0, 0, 0.1);
+            border-right: 2px solid #2c3e50;
+            overflow: hidden;
+            animation: gradientShift 10s ease-in-out infinite;
         }
 
-        .sidebar::before {
-            content: '';
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .bubble {
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(45deg, rgba(255,255,255,0.3) 0%, transparent 50%, rgba(255,255,255,0.1) 100%);
-            pointer-events: none;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(44, 62, 80, 0.05) 0%, rgba(44, 62, 80, 0.1) 50%, rgba(44, 62, 80, 0.3) 100%);
+            transition: transform 0.1s ease-out;
+            z-index: 1;
         }
 
         .time-section {
             text-align: center;
-            z-index: 1;
+            z-index: 10;
+            position: relative;
         }
 
         .clock-container {
@@ -57,7 +72,7 @@
             font-size: 2.5rem;
             font-weight: 300;
             font-family: 'Poppins', sans-serif;
-            color: #495057;
+            color: #2c3e50;
             margin-bottom: 20px;
             letter-spacing: 1px;
         }
@@ -68,7 +83,7 @@
 
         .calendar {
             font-size: 2.5rem;
-            color: #495057;
+            color: #2c3e50;
             font-weight: 300;
             letter-spacing: 1px;
         }
@@ -79,7 +94,7 @@
 
         .countdown {
             font-size: 2.5rem;
-            color: #495057;
+            color: #2c3e50;
             font-weight: 300;
             letter-spacing: 1px;
         }
@@ -96,23 +111,12 @@
         .main-content {
             width: 50%;
             padding: 60px;
-            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            background: white;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             position: relative;
-        }
-
-        .main-content::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, rgba(255,255,255,0.5) 0%, transparent 50%, rgba(255,255,255,0.2) 100%);
-            pointer-events: none;
         }
 
         h1 {
@@ -124,18 +128,223 @@
             z-index: 1;
         }
 
-        .welcome-text {
-            color: #495057;
-            font-size: 1.2rem;
-            font-weight: 300;
-            text-align: center;
+        .task-section {
+            width: 100%;
+            max-width: 600px;
             z-index: 1;
+        }
+
+        .task-input-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .task-input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #2c3e50;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            font-weight: 300;
+            color: #2c3e50;
+            background: white;
+        }
+
+        .task-input:focus {
+            outline: none;
+        }
+
+        .add-task-btn {
+            padding: 15px 25px;
+            background: #2c3e50;
+            color: white;
+            border: 2px solid #2c3e50;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            font-weight: 400;
+            cursor: pointer;
+        }
+
+        .tasks-container {
+            background: white;
+            border: 2px solid #2c3e50;
+            padding: 25px;
+            width: 100%;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 0;
+            border-bottom: 1px solid #2c3e50;
+            font-size: 1rem;
+            font-weight: 300;
+            color: #2c3e50;
+        }
+
+        .task-item:last-child {
+            border-bottom: none;
+        }
+
+        .task-text {
+            flex: 1;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .task-btn {
+            padding: 8px 15px;
+            border: 2px solid #2c3e50;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 300;
+            cursor: pointer;
+        }
+
+        .complete-btn {
+            background: #6c757d;
+            color: white;
+            border-color: #6c757d;
+        }
+
+        .delete-btn {
+            background: #495057;
+            color: white;
+            border-color: #495057;
+        }
+
+        .task-completed {
+            position: relative;
+            opacity: 0.6;
+        }
+
+        .task-completed::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #2c3e50;
+            transform: translateY(-50%);
+            z-index: 1;
+        }
+
+        .no-tasks {
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+            padding: 40px 0;
+        }
+
+        .log-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: #2c3e50;
+            color: white;
+            border: 2px solid #2c3e50;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 300;
+            cursor: pointer;
+            z-index: 1000;
+        }
+
+        .log-button:hover {
+            background: white;
+            color: #2c3e50;
+        }
+
+        .log-page {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            z-index: 2000;
+            overflow-y: auto;
+        }
+
+        .log-header {
+            padding: 20px;
+            border-bottom: 2px solid #2c3e50;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .log-content {
+            padding: 20px;
+        }
+
+        .log-entry {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #e9ecef;
+        }
+
+        .log-date {
+            font-weight: 500;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .log-tasks {
+            color: #495057;
+        }
+
+        .close-log {
+            padding: 8px 15px;
+            background: #2c3e50;
+            color: white;
+            border: 2px solid #2c3e50;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+            cursor: pointer;
         }
 
     </style>
 </head>
 <body>
+    <button class="log-button" onclick="showLogPage()">Log</button>
+    
+    <div class="log-page" id="logPage">
+        <div class="log-header">
+            <h2>Task Logs</h2>
+            <button class="close-log" onclick="hideLogPage()">Close</button>
+        </div>
+        <div class="log-content" id="logContent">
+            <div class="no-tasks">No logs yet.</div>
+        </div>
+    </div>
+
     <div class="sidebar">
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        
         <div class="time-section">
             <div class="clock-container">
                 <div class="section-title">Current Time</div>
@@ -148,15 +357,25 @@
             </div>
             
             <div class="countdown-container">
-                <div class="section-title">Countdown to Nov 9</div>
+                <div class="section-title">Countdown to IELTS Test</div>
                 <div class="countdown" id="countdown">0 days, 0 hours</div>
             </div>
         </div>
     </div>
 
     <div class="main-content">
-        <h1>Welcome to AChelseaPlanner</h1>
-        <p class="welcome-text">Your personal planning dashboard is ready!</p>
+        <div class="task-section">
+            <div class="task-input-container">
+                <input type="text" class="task-input" id="taskInput" placeholder="Add a new task...">
+                <button class="add-task-btn" onclick="addTask()">Add Task</button>
+            </div>
+            
+            <div class="tasks-container">
+                <div id="tasksList">
+                    <div class="no-tasks">...</div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -213,6 +432,231 @@
         // Update calendar and countdown every minute (in case date changes)
         setInterval(updateCalendar, 60000);
         setInterval(updateCountdown, 60000);
+        
+        // Check for daily reset every minute
+        setInterval(checkDailyReset, 60000);
+        
+        // Check for 23:59 auto-save every minute
+        setInterval(checkAutoSave, 60000);
+
+        // Task Management Functions
+        let tasks = [];
+        let lastResetDate = new Date().toDateString();
+        let taskLogs = JSON.parse(localStorage.getItem('taskLogs')) || [];
+
+        function addTask() {
+            const taskInput = document.getElementById('taskInput');
+            const taskText = taskInput.value.trim();
+            
+            if (taskText === '') {
+                alert('Please enter a task!');
+                return;
+            }
+            
+            const task = {
+                id: Date.now(),
+                text: taskText,
+                completed: false,
+                createdAt: new Date()
+            };
+            
+            tasks.push(task);
+            taskInput.value = '';
+            renderTasks();
+        }
+
+        function toggleTask(id) {
+            const task = tasks.find(t => t.id === id);
+            if (task) {
+                task.completed = !task.completed;
+                renderTasks();
+            }
+        }
+
+        function deleteTask(id) {
+            tasks = tasks.filter(t => t.id !== id);
+            renderTasks();
+        }
+
+        function checkAutoSave() {
+            const now = new Date();
+            const hours = now.getHours();
+            const minutes = now.getMinutes();
+            
+            // Check if it's 23:59
+            if (hours === 23 && minutes === 59) {
+                saveTasksToLog();
+            }
+        }
+
+        function saveTasksToLog() {
+            if (tasks.length > 0) {
+                const logEntry = {
+                    date: new Date().toDateString(),
+                    timestamp: new Date().toISOString(),
+                    tasks: tasks.map(task => ({
+                        text: task.text,
+                        completed: task.completed,
+                        createdAt: task.createdAt
+                    }))
+                };
+                
+                taskLogs.unshift(logEntry); // Add to beginning
+                localStorage.setItem('taskLogs', JSON.stringify(taskLogs));
+            }
+        }
+
+        function showLogPage() {
+            document.getElementById('logPage').style.display = 'block';
+            renderLogs();
+        }
+
+        function hideLogPage() {
+            document.getElementById('logPage').style.display = 'none';
+        }
+
+        function renderLogs() {
+            const logContent = document.getElementById('logContent');
+            
+            if (taskLogs.length === 0) {
+                logContent.innerHTML = '<div class="no-tasks">No logs yet.</div>';
+                return;
+            }
+            
+            logContent.innerHTML = taskLogs.map(log => `
+                <div class="log-entry">
+                    <div class="log-date">${log.date}</div>
+                    <div class="log-tasks">
+                        ${log.tasks.map(task => 
+                            `<div style="margin: 5px 0; ${task.completed ? 'text-decoration: line-through; opacity: 0.6;' : ''}">
+                                ${task.completed ? '✓' : '○'} ${task.text}
+                            </div>`
+                        ).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderTasks() {
+            const tasksList = document.getElementById('tasksList');
+            
+            if (tasks.length === 0) {
+                tasksList.innerHTML = '<div class="no-tasks">...</div>';
+                return;
+            }
+            
+            tasksList.innerHTML = tasks.map(task => `
+                <div class="task-item ${task.completed ? 'task-completed' : ''}">
+                    <div class="task-text">${task.text}</div>
+                    <div class="task-actions">
+                        <button class="task-btn complete-btn" onclick="toggleTask(${task.id})">
+                            ${task.completed ? 'Undo' : 'Complete'}
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Allow adding tasks with Enter key
+        document.getElementById('taskInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addTask();
+            }
+        });
+
+        // Bubble Physics System
+        class Bubble {
+            constructor(element) {
+                this.element = element;
+                this.x = Math.random() * (window.innerWidth * 0.5 - 100);
+                this.y = Math.random() * (window.innerHeight - 100);
+                this.vx = (Math.random() - 0.5) * 2;
+                this.vy = (Math.random() - 0.5) * 2;
+                this.radius = 50;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // Bounce off walls
+                if (this.x <= 0 || this.x >= window.innerWidth * 0.5 - 100) {
+                    this.vx = -this.vx;
+                }
+                if (this.y <= 0 || this.y >= window.innerHeight - 100) {
+                    this.vy = -this.vy;
+                }
+
+                // Keep within bounds
+                this.x = Math.max(0, Math.min(window.innerWidth * 0.5 - 100, this.x));
+                this.y = Math.max(0, Math.min(window.innerHeight - 100, this.y));
+
+                this.element.style.left = this.x + 'px';
+                this.element.style.top = this.y + 'px';
+            }
+
+            checkCollision(other) {
+                const dx = this.x - other.x;
+                const dy = this.y - other.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < this.radius * 2) {
+                    // Collision detected
+                    const angle = Math.atan2(dy, dx);
+                    const sin = Math.sin(angle);
+                    const cos = Math.cos(angle);
+
+                    // Rotate velocities
+                    const vx1 = this.vx * cos + this.vy * sin;
+                    const vy1 = this.vy * cos - this.vx * sin;
+                    const vx2 = other.vx * cos + other.vy * sin;
+                    const vy2 = other.vy * cos - other.vx * sin;
+
+                    // Swap velocities
+                    this.vx = vx2 * cos - vy2 * sin;
+                    this.vy = vy2 * cos + vx2 * sin;
+                    other.vx = vx1 * cos - vy1 * sin;
+                    other.vy = vy1 * cos + vx1 * sin;
+
+                    // Separate bubbles
+                    const overlap = this.radius * 2 - distance;
+                    const separationX = (overlap / 2) * cos;
+                    const separationY = (overlap / 2) * sin;
+                    
+                    this.x += separationX;
+                    this.y += separationY;
+                    other.x -= separationX;
+                    other.y -= separationY;
+                }
+            }
+        }
+
+        // Initialize bubbles
+        let bubbles = [];
+        const bubbleElements = document.querySelectorAll('.bubble');
+        
+        bubbleElements.forEach(element => {
+            bubbles.push(new Bubble(element));
+        });
+
+        // Animation loop
+        function animateBubbles() {
+            bubbles.forEach(bubble => {
+                bubble.update();
+            });
+
+            // Check collisions
+            for (let i = 0; i < bubbles.length; i++) {
+                for (let j = i + 1; j < bubbles.length; j++) {
+                    bubbles[i].checkCollision(bubbles[j]);
+                }
+            }
+
+            requestAnimationFrame(animateBubbles);
+        }
+
+        // Start animation
+        animateBubbles();
     </script>
 </body>
 </html>
