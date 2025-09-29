@@ -15,7 +15,7 @@ body {
 }
 
 body.dark-mode {
-    background: #1a1a1a;
+    background: #000000;
 }
 
 .sidebar {
@@ -33,7 +33,7 @@ body.dark-mode {
 }
 
 body.dark-mode .sidebar {
-    background: #2d2d2d;
+    background: #000000;
     color: #e0e0e0;
     border-right-color: #e0e0e0;
 }
@@ -122,7 +122,7 @@ body.dark-mode .section-title {
 }
 
 body.dark-mode .main-content {
-    background: #2d2d2d;
+    background: #000000;
 }
 
 h1 {
@@ -166,7 +166,7 @@ body.dark-mode h1 {
 body.dark-mode .task-input {
     border-color: #e0e0e0;
     color: #e0e0e0;
-    background: #1a1a1a;
+    background: #000000;
 }
 
 .task-input:focus {
@@ -200,7 +200,7 @@ body.dark-mode .add-task-btn {
 }
 
 body.dark-mode .tasks-container {
-    background: #1a1a1a;
+    background: #000000;
     border-color: #e0e0e0;
 }
 
@@ -339,6 +339,11 @@ body.dark-mode .log-button:hover {
     background: white;
     z-index: 2000;
     overflow-y: auto;
+    transition: background-color 0.5s ease;
+}
+
+body.dark-mode .log-page {
+    background: #000000;
 }
 
 .log-header {
@@ -347,6 +352,11 @@ body.dark-mode .log-button:hover {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    transition: border-color 0.5s ease;
+}
+
+body.dark-mode .log-header {
+    border-bottom-color: #e0e0e0;
 }
 
 .log-content {
@@ -357,16 +367,31 @@ body.dark-mode .log-button:hover {
     margin-bottom: 20px;
     padding: 15px;
     border: 1px solid #e9ecef;
+    transition: border-color 0.5s ease;
+}
+
+body.dark-mode .log-entry {
+    border-color: #333333;
 }
 
 .log-date {
     font-weight: 500;
     color: #2c3e50;
     margin-bottom: 10px;
+    transition: color 0.5s ease;
+}
+
+body.dark-mode .log-date {
+    color: #e0e0e0;
 }
 
 .log-tasks {
     color: #495057;
+    transition: color 0.5s ease;
+}
+
+body.dark-mode .log-tasks {
+    color: #e0e0e0;
 }
 
 .close-log {
