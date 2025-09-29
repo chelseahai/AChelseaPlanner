@@ -103,6 +103,7 @@
         updateClock();
         updateCalendar();
         updateCountdown();
+        checkDayNightMode(); // Initial check
         setInterval(updateClock, 1000);
         
         // Update calendar and countdown every minute (in case date changes)
@@ -114,6 +115,9 @@
         
         // Check for 23:59 auto-save every minute
         setInterval(checkAutoSave, 60000);
+        
+        // Check for day/night mode every minute
+        setInterval(checkDayNightMode, 60000);
 
         // Task Management Functions
         let tasks = [];
@@ -154,14 +158,15 @@
             renderTasks();
         }
 
-        function checkAutoSave() {
+        function checkDayNightMode() {
             const now = new Date();
             const hours = now.getHours();
-            const minutes = now.getMinutes();
             
-            // Check if it's 23:59
-            if (hours === 23 && minutes === 59) {
-                saveTasksToLog();
+            // Dark mode from 7pm (19:00) to 7am (07:00)
+            if (hours >= 19 || hours < 7) {
+                document.body.classList.add('dark-mode');
+            } else {
+                document.body.classList.remove('dark-mode');
             }
         }
 
