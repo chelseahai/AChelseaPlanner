@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AChelseaPlanner</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 100;
+            background: white;
+            display: flex;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 50%;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            color: #2c3e50;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            border-right: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(255,255,255,0.3) 0%, transparent 50%, rgba(255,255,255,0.1) 100%);
+            pointer-events: none;
+        }
+
+        .time-section {
+            text-align: center;
+            z-index: 1;
+        }
+
+        .clock-container {
+            margin-bottom: 60px;
+        }
+
+        .clock {
+            font-size: 2.5rem;
+            font-weight: 300;
+            font-family: 'Poppins', sans-serif;
+            color: #495057;
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+        }
+
+        .calendar-container {
+            margin-bottom: 40px;
+        }
+
+        .calendar {
+            font-size: 2.5rem;
+            color: #495057;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+
+        .countdown-container {
+            margin-bottom: 40px;
+        }
+
+        .countdown {
+            font-size: 2.5rem;
+            color: #495057;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+
+        .section-title {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            font-weight: 300;
+        }
+
+        .main-content {
+            width: 50%;
+            padding: 60px;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .main-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.5) 0%, transparent 50%, rgba(255,255,255,0.2) 100%);
+            pointer-events: none;
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 3rem;
+            font-weight: 200;
+            text-align: center;
+            z-index: 1;
+        }
+
+        .welcome-text {
+            color: #495057;
+            font-size: 1.2rem;
+            font-weight: 300;
+            text-align: center;
+            z-index: 1;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="time-section">
+            <div class="clock-container">
+                <div class="section-title">Current Time</div>
+                <div class="clock" id="clock">00:00:00</div>
+            </div>
+            
+            <div class="calendar-container">
+                <div class="section-title">Today's Date</div>
+                <div class="calendar" id="calendar">Mon Sep 29 2025</div>
+            </div>
+            
+            <div class="countdown-container">
+                <div class="section-title">Countdown to Nov 9</div>
+                <div class="countdown" id="countdown">0 days, 0 hours</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <h1>Welcome to AChelseaPlanner</h1>
+        <p class="welcome-text">Your personal planning dashboard is ready!</p>
+    </div>
+
+    <script>
+        function updateClock() {
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const seconds = now.getSeconds().toString().padStart(2, '0');
+            
+            document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds}`;
+        }
+
+        function updateCalendar() {
+            const now = new Date();
+            const options = { 
+                weekday: 'short', 
+                month: 'short', 
+                day: 'numeric', 
+                year: 'numeric' 
+            };
+            
+            const dateString = now.toLocaleDateString('en-US', options);
+            document.getElementById('calendar').textContent = dateString;
+        }
+
+        function updateCountdown() {
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            const targetDate = new Date(currentYear, 10, 9); // November 9th (month is 0-indexed)
+            
+            // If Nov 9 has passed this year, target next year
+            if (targetDate < now) {
+                targetDate.setFullYear(currentYear + 1);
+            }
+            
+            const timeDiff = targetDate - now;
+            
+            if (timeDiff > 0) {
+                const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                
+                document.getElementById('countdown').textContent = `${days} days, ${hours} hours`;
+            } else {
+                document.getElementById('countdown').textContent = "Today is Nov 9!";
+            }
+        }
+
+        // Update clock every second
+        updateClock();
+        updateCalendar();
+        updateCountdown();
+        setInterval(updateClock, 1000);
+        
+        // Update calendar and countdown every minute (in case date changes)
+        setInterval(updateCalendar, 60000);
+        setInterval(updateCountdown, 60000);
+    </script>
+</body>
+</html>
